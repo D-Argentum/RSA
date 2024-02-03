@@ -6,6 +6,9 @@ print("|------------------------------------------------------------------------
 print("")
 clave = Fernet.generate_key()
 
+
+
+
 print("")
 print("//////////----------------------//////////")
 print("Esta es la clave del mensaje:", clave)
@@ -20,7 +23,10 @@ print("")
 print("//////////----------------------//////////")
 print("Este es el mensaje encriptado:")
 
+# Esta parte es para cifrar el texto
 texto_original = "El siguiente texto es un token, el que lo pueda descifrar tendrá el privilegio de deberme un electrolyt de la tienda de su preferencia"
+
+# Esta linea es para decodificar la clave
 token_encrypt = f.encrypt(texto_original.encode('utf-8'))
 print(token_encrypt)
 print("//////////----------------------//////////")
