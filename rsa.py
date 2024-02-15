@@ -1,22 +1,23 @@
 import Crypto
 from Crypto.Util.number import long_to_bytes,bytes_to_long
 from Crypto import Random
-import pycryptodome
+
+
 
 # Números de bits:
 bits = 1024
 
 # Obtener los primos para Alice:
-primo_alice = Crypto.Util.number.getPrime(bits, randfunc=Crypto.random.get_random_bytes)
-q_alice = Crypto.Util.number.getPrime(bits, randfunc=Crypto.random.get_random_bytes)
+primo_alice = Crypto.Util.number .getPrime(bits, randfunc=Crypto.Random.get_random_bytes)
+q_alice = Crypto.Util.number.getPrime(bits, randfunc=Crypto.Random.get_random_bytes)
 
 
 print("Primo de Alice: ", primo_alice)
 print("Número Q de Alice: ", q_alice)
 
 # Obtener los primos para Bob:
-primo_bob = Crypto.Util.number.getPrime(bits, randfunc=Crypto.random.get_random_bytes)
-q_bob = Crypto.Util.number.getPrime(bits, randfunc=Crypto.random.get_random_bytes)
+primo_bob = Crypto.Util.number.getPrime(bits, randfunc=Crypto.Random.get_random_bytes)
+q_bob = Crypto.Util.number.getPrime(bits, randfunc=Crypto.Random.get_random_bytes)
 
 
 print("Primo de Alice: ", primo_alice)
@@ -56,7 +57,7 @@ print("Llave privada de Bob: ", d_Bob)
 
 
 # Ciframos el mensaje:
-mensaje = "Chinga a tu madre"
+mensaje = "UYUYUYUYUY"
 print("Mensaje Original: ", mensaje)
 print("Longtud del mensaje en bytes: ", len(mensaje.encode("utf-8")))
 
@@ -76,6 +77,7 @@ print("Mensaje descifrado: ", mensaje_descifrado)
 
 
 # Convertimos el mensaje de número a texto:
-mensaje_final = int.to_bytes(mensaje_descifrado, len(mensaje_descifrado), byteorder="big").decode("utf-8")
+mensaje_final = int.to_bytes(mensaje_descifrado, len(mensaje), byteorder="big").decode("utf-8")
 print("Mensaje final en texto: ", mensaje_final, "\n")
 
+hash_mensaje = Crypto.Hash.SHA256.new(mensaje_final.encode("utf-8"))
