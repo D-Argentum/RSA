@@ -47,14 +47,14 @@ hash_pdf_3 = hash_archivo(nombre_archivo_pdf_3)
 print("HASH del tercer archivo PDF:", hash_pdf_3)
 print("|----------------|")
 
-# Comparar los hashes
+# Comparamos los hashes
 if hash_pdf_1 == hash_pdf_2:
     print("Los hashes del primer archivo PDF y el del segundo archivo PDF son iguales.", "\n","Primer Hash: ", "\n", hash_pdf_1, "\n","Segundo Hash: ", "\n", hash_pdf_2,)
 else:
     print("Los hashes del primer archivo PDF y el del segundo archivo PDF son diferentes.", "\n", "Primer Hash: ", "\n", hash_pdf_1, "\n", "Segundo Hash: " "\n", hash_pdf_2,)
 print("|----------------|")
 
-# Comparar los hashes
+# Comparamos1 los hashes
 if hash_pdf_1 == hash_pdf_3:
     print("Los hashes del primer archivo PDF y el del tercer archivo PDF son iguales.", "\n", "Primer Hash: ", "\n",hash_pdf_1, "\n" , "Tercer Hash: ", "\n", hash_pdf_3,)
 else:
