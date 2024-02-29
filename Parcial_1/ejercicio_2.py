@@ -96,75 +96,178 @@ print("HASH del contrato sin firma digital:", hash_contrato_sin_firma_digital)
 print("|----------------|")
 
 # 1.- Alice firmará digitalmente el contrato h(M) usando el algoritmo RSA mediante su llave privada
-contrato_firmado_digitalmente_por_Alice = pow(hash_contrato_sin_firma_digital, d_Alice, n_Alice)
-#///////////////////////////////
+contrato_firmado_digitalmente_por_Alice = pow(hash_contrato_sin_firma_digital, d_Alice, n_Alice) # Revisar si está bien ??
+print("Contrato firmado digitalmente por Alice:", contrato_firmado_digitalmente_por_Alice)
+print("|----------------|")
+
 
 # 2.- Alice agregará la firma digital al contrato
 
-input_pdf = "NDA.pdf"
-output_pdf = "NDA_firmado.pdf"
+# Se creará un pdf de una página vacío y se agregará la firma digital:
+def crear_pdf_firma_Alice(nombre_pdf):
+    c = canvas.Canvas(nombre_pdf, pagesize=letter)
 
+    contrato_firmado_digitalmente_por_Alice_str = str(contrato_firmado_digitalmente_por_Alice)
 
-def agregar_firma_pdf(input_pdf, firma, output_pdf):
-    # Crear un nuevo lienzo PDF
-    c = canvas.Canvas(output_pdf, pagesize=letter)
+    # Calcular la longitud total y la longitud de cada línea
+    longitud_total = len(contrato_firmado_digitalmente_por_Alice_str)
+    longitud_linea = longitud_total // 10
 
-    # Agregar todas las páginas del PDF original al nuevo PDF
-    reader = PyPDF2.PdfReader(input_pdf)
-    num_pages = len(reader.pages)
-    for i in range(num_pages):
-        c.showPage()
+    # Dividir el número entero en 10 líneas aproximadamente iguales
+    lineas = [contrato_firmado_digitalmente_por_Alice_str[i:i + longitud_linea] for i in
+              range(0, longitud_total, longitud_linea)]
 
-    # Agregar una página en blanco al final del PDF
-    c.showPage()
+    y = 100
+    for linea in lineas:
+        c.drawString(100, y, linea)
+        y -= 10  # Disminuir la posición 'y' para la próxima línea
 
-    # Agregar la firma digital como texto en la nueva página
-    c.drawString(100, 100, firma)
-
-    # Guardar el nuevo PDF con la firma digital
     c.save()
 
+# Función para agregar la página de firma de Alice al PDF existente NDA.pdf
+def agregar_firma_Alice_a_NDA(input_pdf, firma_pdf, output_pdf):
+    # Abrir el PDF de entrada (NDA.pdf) y el PDF de la firma de Alice
+    with open(input_pdf, "rb") as input_file, open(firma_pdf, "rb") as firma_file:
+        reader_input = PyPDF2.PdfReader(input_file)
+        reader_firma = PyPDF2.PdfReader(firma_file)
 
-# Convertir la firma digital a una cadena hexadecimal
-firma_hex_contrato_firmado_digitalmente_por_Alice = hex(contrato_firmado_digitalmente_por_Alice)
-print("Contrato firmado digitalmente por Alice: ", contrato_firmado_digitalmente_por_Alice)
+        writer = PyPDF2.PdfWriter()
 
-# Llamar a la función para agregar la firma digital al PDF
-agregar_firma_pdf(input_pdf, firma_hex_contrato_firmado_digitalmente_por_Alice, output_pdf)
+        # Agregar páginas del PDF original (NDA.pdf) al nuevo PDF
+        for page in reader_input.pages:
+            writer.add_page(page)
+
+        # Agregar la página de firma de Alice al final del nuevo PDF
+        writer.add_page(reader_firma.pages[0])
+
+        # Guardar el nuevo PDF
+        with open(output_pdf, "wb") as output_file:
+            writer.write(output_file)
+
+
+# Nombre de los archivos PDF
+nombre_NDA_pdf = "NDA.pdf"
+nombre_firma_Alice_pdf = "firma_Alice.pdf"
+nombre_NDA_firmado_pdf = "NDA_firmado_por_Alice.pdf"
+
+# Crear el PDF de la firma de Alice
+crear_pdf_firma_Alice(nombre_firma_Alice_pdf)
+
+# Agregar la página de firma de Alice al PDF NDA.pdf y guardar el nuevo PDF firmado
+agregar_firma_Alice_a_NDA(nombre_NDA_pdf, nombre_firma_Alice_pdf, nombre_NDA_firmado_pdf)
+
+print("Se ha generado el PDF firmado por Alice.")
+print("------------------|")
+
 
 # Ahora Alice le envía el documento firmado a la Autoridad Certificadora
 
 # 3.- La Autoridad Certificadora obtendrá el HASH del documento original.
-# Calcular el hash para el archivo
-nombre_contrato_sin_firma_digital_ac = "NDA.pdf"
+# Ahora la autoridad verificará la autenticidad de la firma de Alice
+documento_recibido_de_parte_de_Alice = contrato_firmado_digitalmente_por_Alice
 
-hash_contrato_sin_firma_digital_ac = hash_contrato(nombre_contrato_sin_firma_digital_ac)
-print("HASH del contrato sin firma digital:", hash_contrato_sin_firma_digital_ac)
+# Ahora verificamos la firma de alice
+verificacion_por_parte_de_la_autoridad = pow(documento_recibido_de_parte_de_Alice, e, n_Alice)
+print("Hash que la autoridad verificará: ", verificacion_por_parte_de_la_autoridad)
 print("|----------------|")
 
-verificacion_por_parte_de_la_autoridad = pow(hash_contrato_sin_firma_digital_ac, e, n_Alice)
-
-# Aquí me quede ...........
-
-# Restar la firma digital de Alice a la verificación por parte de la autoridad
-
-print("Verificación por parte de la Autoridad: ", verificacion_por_parte_de_la_autoridad)
-print("Verificación sin firma digital: ", hash_contrato_sin_firma_digital_ac)
-
+# Verificar si los hash coinciden
+print("Verificación por parte de la Autoridad del hash: ", "\n", hash_contrato_sin_firma_digital)
+print("------------------|")
+print("Verificación de la firma de Alice: ", "\n", verificacion_por_parte_de_la_autoridad)
+print("------------------|")
 
 # Verificar si los hash coinciden
-if verificacion_por_parte_de_la_autoridad == hash_contrato_sin_firma_digital_ac:
-    print("El documento coincide.")
+if verificacion_por_parte_de_la_autoridad == hash_contrato_sin_firma_digital:
+
+    print("Los Hash del documento verificado y el Hash del documento original coinciden.")
 else:
-    print("El documento no coincide.")
+    print("Los Hash del documento verificado y el Hash del documento original no coinciden.")
+
+
+# 4 - La Autoridad Certificadora firmará el documento con su llave privada y la agrega al PDF
+# Asimismo se la envía a bob
 
 
 
+contrato_firmado_digitalmente_por_la_ac = pow(verificacion_por_parte_de_la_autoridad, d_autoridad, n_autoridad) # Revisar si está bien ??
+print("Contrato firmado digitalmente por la Autoridad:", contrato_firmado_digitalmente_por_la_ac)
+print("|----------------|")
+
+def crear_pdf_firma_Autoridad(nombre_pdf):
+    c = canvas.Canvas(nombre_pdf, pagesize=letter)
+
+    contrato_firmado_digitalmente_por_la_ac_str = str(contrato_firmado_digitalmente_por_la_ac)
+
+    # Calcular la longitud total y la longitud de cada línea
+    longitud_total = len(contrato_firmado_digitalmente_por_la_ac_str)
+    longitud_linea = longitud_total // 10
+
+    # Dividir el número entero en 10 líneas aproximadamente iguales
+    lineas = [contrato_firmado_digitalmente_por_la_ac_str[i:i + longitud_linea] for i in
+              range(0, longitud_total, longitud_linea)]
+
+    y = 100
+    for linea in lineas:
+        c.drawString(100, y, linea)
+        y -= 10  # Disminuir la posición 'y' para la próxima línea
+
+    c.save()
+
+# Función para agregar la página de firma de la autoridad al PDF existente NDA.pdf
+def agregar_firma_Autoridad_a_NDA(input_pdf, firma_pdf, output_pdf):
+    # Abrir el PDF de entrada (NDA.pdf) y el PDF de la firma de la autoridad
+    with open(input_pdf, "rb") as input_file, open(firma_pdf, "rb") as firma_file:
+        reader_input = PyPDF2.PdfReader(input_file)
+        reader_firma = PyPDF2.PdfReader(firma_file)
+
+        writer = PyPDF2.PdfWriter()
+
+        # Agregar páginas del PDF original (NDA.pdf) al nuevo PDF
+        for page in reader_input.pages:
+            writer.add_page(page)
+
+        # Agregar la página de firma de la autoridad al final del nuevo PDF
+        writer.add_page(reader_firma.pages[0])
+
+        # Guardar el nuevo PDF
+        with open(output_pdf, "wb") as output_file:
+            writer.write(output_file)
 
 
+# Nombre de los archivos PDF
+nombre_NDA_pdf = "NDA.pdf"
+nombre_firma_Autoridad_pdf = "firma_Autoridad.pdf"
+nombre_NDA_firmado_por_la_autoridad_pdf = "NDA_firmado_por_la_autoridad.pdf"
+
+# Crear el PDF de la firma de la Autoridad
+crear_pdf_firma_Autoridad(nombre_firma_Autoridad_pdf)
+
+# Agregar la página de firma de Alice al PDF NDA.pdf y guardar el nuevo PDF firmado
+agregar_firma_Alice_a_NDA(nombre_NDA_pdf, nombre_firma_Autoridad_pdf, nombre_NDA_firmado_por_la_autoridad_pdf)
+
+print("Se ha generado el PDF firmado por la Autoridad.")
+print("------------------|")
 
 
-# Ahora la Autoridad Certificadora verificará la firma usando la llave publica de Alice
-# Recuerda que debemos restarle la firma digital de Alice para que coincidan
+# Bob obtiene el HASH del documento PDF y verifica la firma de la AC con la llave pública de AC.
 
-verificar_firma_digital_con_llave_publica_de_alice = pow(hash_contrato_sin_firma_digital_ac, d_autoridad, n_Alice)
+documento_recibido_de_parte_de_la_Autoridad_Certificadora = contrato_firmado_digitalmente_por_la_ac
+
+# Ahora verificamos la firma de la autoridad
+verificacion_por_parte_de_bob = pow(documento_recibido_de_parte_de_la_Autoridad_Certificadora, e, n_autoridad)
+print("Hash que la autoridad verificará: ", verificacion_por_parte_de_bob)
+print("|----------------|")
+
+# Verificar si los hash coinciden
+print("Verificación por parte de Bob del hash: ", "\n", hash_contrato_sin_firma_digital)
+print("------------------|")
+print("Verificación de la firma de la Autoridad: ", "\n", verificacion_por_parte_de_bob)
+print("------------------|")
+
+# Verificar si los hash coinciden
+if verificacion_por_parte_de_la_autoridad == hash_contrato_sin_firma_digital:
+
+    print("Los Hash del documento verificado y el Hash del documento original coinciden.")
+else:
+    print("Los Hash del documento verificado y el Hash del documento original no coinciden.")
